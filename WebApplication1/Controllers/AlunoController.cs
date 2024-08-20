@@ -9,15 +9,24 @@ namespace WebApplication1.Controllers
 	{
 		private static List<DadosAluno> dadosAlunosList =  new List<DadosAluno>();
 
-		public AlunoController()
-		{
-
-		}
 
 		[HttpGet]
 		public IActionResult OlaAluno()
 		{
 			return Ok("Ola Mundo");
+		}
+
+		[HttpGet]
+		[Route("ObterPorCpf")]
+		public IActionResult ObterPorCpf(string cpf)
+		{
+			var alunoPesquisado = dadosAlunosList.Where(a => a.cpf == cpf).FirstOrDefault();
+
+
+			if(alunoPesquisado is null)
+				return NotFound($"Aluno com cpf {cpf} não encontrado.");
+	
+			return Ok(alunoPesquisado);
 		}
 
 		[HttpGet]
@@ -39,6 +48,38 @@ namespace WebApplication1.Controllers
 		{
 			dadosAlunosList.Add(dados);
 			return Ok($"Aluno(a) {dados.nome} inserido com sucesso.");
+		}
+
+		[HttpDelete]
+		[Route("Remover")]
+		public IActionResult Remover(string cpf)
+		{
+			var alunoPesquisado = dadosAlunosList.Where(a => a.cpf == cpf).FirstOrDefault();
+
+
+			if (alunoPesquisado is null)
+				return NotFound($"Aluno com cpf {cpf} não encontrado.");
+
+			dadosAlunosList.Remove(alunoPesquisado);
+
+			return NoContent();
+		}
+
+		[HttpPut]
+		[Route("Atualizar/{cpf}")]
+		public IActionResult Atualizar(string cpf, DadosAluno alunoAtualizado)
+		{
+			var alunoPesquisado = dadosAlunosList.Where(a => a.cpf == cpf).FirstOrDefault();
+
+
+			if (alunoPesquisado is null)
+				return NotFound($"Aluno com cpf {cpf} não encontrado.");
+
+			alunoPesquisado.nome = alunoAtualizado.nome;
+			alunoPesquisado.cpf = alunoAtualizado.cpf;
+			alunoPesquisado.telefone = alunoAtualizado.telefone;
+
+			return NoContent();
 		}
 	}
 }
