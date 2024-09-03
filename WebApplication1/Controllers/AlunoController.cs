@@ -7,7 +7,7 @@ namespace WebApplication1.Controllers
 	[Route("api/aluno")]
 	public class AlunoController : ControllerBase
 	{
-		private static List<DadosAluno> dadosAlunosList =  new List<DadosAluno>();
+		private static List<DadosAluno> dadosAlunosList = new List<DadosAluno>();
 
 
 		[HttpGet]
@@ -22,10 +22,9 @@ namespace WebApplication1.Controllers
 		{
 			var alunoPesquisado = dadosAlunosList.Where(a => a.cpf == cpf).FirstOrDefault();
 
-
-			if(alunoPesquisado is null)
+			if (alunoPesquisado is null)
 				return NotFound($"Aluno com cpf {cpf} não encontrado.");
-	
+
 			return Ok(alunoPesquisado);
 		}
 
@@ -44,9 +43,21 @@ namespace WebApplication1.Controllers
 
 		[HttpPost]
 		[Route("Inserir")]
-		public IActionResult Inserir(DadosAluno dados)
+		public IActionResult Inserir(NovoAluno dados)
 		{
-			dadosAlunosList.Add(dados);
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
+
+			dadosAlunosList.Add(new DadosAluno()
+			{
+				cpf = dados.cpf,
+				email = dados.email,
+				nome = dados.nome,
+				telefone = dados.telefone
+			});
+
 			return Ok($"Aluno(a) {dados.nome} inserido com sucesso.");
 		}
 
