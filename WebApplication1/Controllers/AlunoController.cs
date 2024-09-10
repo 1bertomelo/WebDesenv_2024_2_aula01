@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Models;
+using WebApplication1.Services;
 
 namespace WebApplication1.Controllers
 {
@@ -7,8 +8,12 @@ namespace WebApplication1.Controllers
 	[Route("api/aluno")]
 	public class AlunoController : ControllerBase
 	{
-		private static List<DadosAluno> dadosAlunosList = new List<DadosAluno>();
+		private readonly IAlunoRepository _alunoRepository;
 
+		public AlunoController(IAlunoRepository alunoRepository)
+		{
+			_alunoRepository = alunoRepository;
+		}
 
 		[HttpGet]
 		public IActionResult OlaAluno()
@@ -20,7 +25,7 @@ namespace WebApplication1.Controllers
 		[Route("ObterPorCpf")]
 		public IActionResult ObterPorCpf(string cpf)
 		{
-			var alunoPesquisado = dadosAlunosList.Where(a => a.cpf == cpf).FirstOrDefault();
+			var alunoPesquisado = _alunoRepository.obterAlunosPorCpf(cpf);
 
 			if (alunoPesquisado is null)
 				return NotFound($"Aluno com cpf {cpf} não encontrado.");
@@ -32,7 +37,7 @@ namespace WebApplication1.Controllers
 		[Route("ObterTodos")]
 		public IActionResult ObterTodos()
 		{
-			return Ok(dadosAlunosList);
+			return Ok(_alunoRepository.obterTodosAlunos());
 		}
 
 		[HttpPost]
@@ -50,47 +55,48 @@ namespace WebApplication1.Controllers
 				return BadRequest(ModelState);
 			}
 
-			dadosAlunosList.Add(new DadosAluno()
+			_alunoRepository.Inserir(new DadosAluno()
 			{
 				cpf = dados.cpf,
 				email = dados.email,
 				nome = dados.nome,
 				telefone = dados.telefone
 			});
+			
 
 			return Ok($"Aluno(a) {dados.nome} inserido com sucesso.");
 		}
 
-		[HttpDelete]
-		[Route("Remover")]
-		public IActionResult Remover(string cpf)
-		{
-			var alunoPesquisado = dadosAlunosList.Where(a => a.cpf == cpf).FirstOrDefault();
+		//[HttpDelete]
+		//[Route("Remover")]
+		//public IActionResult Remover(string cpf)
+		//{
+		//	var alunoPesquisado = dadosAlunosList.Where(a => a.cpf == cpf).FirstOrDefault();
 
 
-			if (alunoPesquisado is null)
-				return NotFound($"Aluno com cpf {cpf} não encontrado.");
+		//	if (alunoPesquisado is null)
+		//		return NotFound($"Aluno com cpf {cpf} não encontrado.");
 
-			dadosAlunosList.Remove(alunoPesquisado);
+		//	dadosAlunosList.Remove(alunoPesquisado);
 
-			return NoContent();
-		}
+		//	return NoContent();
+		//}
 
-		[HttpPut]
-		[Route("Atualizar/{cpf}")]
-		public IActionResult Atualizar(string cpf, DadosAluno alunoAtualizado)
-		{
-			var alunoPesquisado = dadosAlunosList.Where(a => a.cpf == cpf).FirstOrDefault();
+		//[HttpPut]
+		//[Route("Atualizar/{cpf}")]
+		//public IActionResult Atualizar(string cpf, DadosAluno alunoAtualizado)
+		//{
+		//	var alunoPesquisado = dadosAlunosList.Where(a => a.cpf == cpf).FirstOrDefault();
 
 
-			if (alunoPesquisado is null)
-				return NotFound($"Aluno com cpf {cpf} não encontrado.");
+		//	if (alunoPesquisado is null)
+		//		return NotFound($"Aluno com cpf {cpf} não encontrado.");
 
-			alunoPesquisado.nome = alunoAtualizado.nome;
-			alunoPesquisado.cpf = alunoAtualizado.cpf;
-			alunoPesquisado.telefone = alunoAtualizado.telefone;
+		//	alunoPesquisado.nome = alunoAtualizado.nome;
+		//	alunoPesquisado.cpf = alunoAtualizado.cpf;
+		//	alunoPesquisado.telefone = alunoAtualizado.telefone;
 
-			return NoContent();
-		}
+		//	return NoContent();
+		//}
 	}
 }
